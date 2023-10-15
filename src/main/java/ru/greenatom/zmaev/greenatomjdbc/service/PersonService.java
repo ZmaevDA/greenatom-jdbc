@@ -1,48 +1,47 @@
 package ru.greenatom.zmaev.greenatomjdbc.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.greenatom.zmaev.greenatomjdbc.dao.PersonDAO;
 import ru.greenatom.zmaev.greenatomjdbc.domain.dto.PersonDTO;
 import ru.greenatom.zmaev.greenatomjdbc.domain.entity.Person;
+import ru.greenatom.zmaev.greenatomjdbc.domain.entity.PersonRequest;
 import ru.greenatom.zmaev.greenatomjdbc.domain.mapper.PersonMapper;
-import ru.greenatom.zmaev.greenatomjdbc.repository.PersonRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PersonService {
-
-    private final PersonRepository personRepository;
+    private PersonDAO personDAO;
     private final PersonMapper personMapper;
 
-    public List<PersonDTO> findAll() {
-        return personRepository.findAll()
-                .stream().map(personMapper::toDto)
-                .collect(Collectors.toList());
+    @Autowired
+    public PersonService(PersonDAO personDAO, PersonMapper personMapper) {
+        this.personDAO = personDAO;
+        this.personMapper = personMapper;
     }
 
     public PersonDTO findPersonById(Long id) {
-        return personMapper.toDto(personRepository.findById(id));
+        return personMapper.toDto(personDAO.findById(id));
     }
 
     public PersonDTO save(PersonDTO personDTO) {
         Person person = personMapper.toEntity(personDTO);
-        personRepository.save(person);
+        personDAO.create(person);
         return personMapper.toDto(person);
     }
 
-    public int update(Long id, PersonDTO personDTO) {
-        Person oldPerson = personMapper.toEntity(findPersonById(id));
-        oldPerson.setAge(personDTO.getAge());
-        oldPerson.setFirstname(personDTO.getFirstname());
-        oldPerson.setLastname(personDTO.getLastname());
-        oldPerson.setIsAdmin(personDTO.getIsAdmin());
-        return personRepository.update(oldPerson);
+    public void update(Long id, PersonDTO personDTO) {
+        personDAO.update(id, personMapper.toEntity(personDTO));
     }
 
     public void delete(Long id) {
-        personRepository.deleteById(id);
+        personDAO.delete(id);
+    }
+
+    public List<Person> findAll(PersonRequest personRequest) {
+        return personDAO.getAll(personRequest);
     }
 }

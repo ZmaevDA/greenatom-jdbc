@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.greenatom.zmaev.greenatomjdbc.domain.dto.PersonDTO;
+import ru.greenatom.zmaev.greenatomjdbc.domain.entity.Person;
+import ru.greenatom.zmaev.greenatomjdbc.domain.entity.PersonRequest;
 import ru.greenatom.zmaev.greenatomjdbc.service.PersonService;
 
 import java.util.List;
@@ -18,9 +20,9 @@ public class PersonController {
         this.personService = personService;
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<List<PersonDTO>> getPersons() {
-        return new ResponseEntity<>(personService.findAll(), HttpStatus.OK);
+    @PostMapping("/get")
+    public ResponseEntity<List<Person>> getPersons(@RequestBody PersonRequest personRequest) {
+        return new ResponseEntity<>(personService.findAll(personRequest), HttpStatus.OK);
     }
 
     @GetMapping(value = "/get/{id}")
